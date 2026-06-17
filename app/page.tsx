@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/ui/Navbar";
 import ListingCard from "@/components/home/PetCard";
-import { dummyListings } from "@/lib/dummyData";
+import { getApprovedListings, Listing } from "@/lib/dataStore";
 
 export default function HomePage() {
   const [filter, setFilter] = useState<"all" | "pet" | "accessory">("all");
+  const [listings, setListings] = useState<Listing[]>([]);
 
-  const filteredListings = dummyListings.filter((item) => 
+  useEffect(() => {
+    setListings(getApprovedListings());
+  }, []);
+
+  const filteredListings = listings.filter((item) => 
     filter === "all" ? true : item.category === filter
   );
 
@@ -22,7 +27,7 @@ export default function HomePage() {
           <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
             Find Your Perfect Companion
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-800 max-w-2xl mx-auto">
             Browse verified, authentic pets and high-quality accessories from trusted sellers across Pakistan.
           </p>
         </div>

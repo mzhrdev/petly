@@ -13,7 +13,7 @@ export const dummyListings = [
       title: "Premium Royal Canin Dog Food (15kg)",
       category: "accessory",
       price: 18500,
-      imageUrl: "https://unsplash.com/photos/blue-and-white-labeled-pack-Sm7ebvMgi-E",
+      imageUrl: "/images/dog_food.jpg",
       sellerName: "Pet Store PK",
       location: "Karachi",
     },

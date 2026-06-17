@@ -1,20 +1,20 @@
 "use client";
 
-import { useState } from "react";
-
-const dummyListings = [
-  { id: 1, title: "Golden Retriever Puppy", category: "Pet", price: 45000, seller: "Ali Khan", date: "2024-01-15" },
-  { id: 2, title: "Premium Dog Food (20kg)", category: "Accessory", price: 8500, seller: "Pet Store PK", date: "2024-01-14" },
-  { id: 3, title: "Persian Cat (Female)", category: "Pet", price: 30000, seller: "Sara Ahmed", date: "2024-01-14" },
-];
+import { useState, useEffect } from "react";
+import { getPendingListings, updateListingStatus, Listing } from "@/lib/dataStore";
 
 export default function AdminListingsPage() {
-  const [listings, setListings] = useState(dummyListings);
+  const [listings, setListings] = useState<Listing[]>([]);
+
+  useEffect(() => {
+    setListings(getPendingListings());
+  }, []);
 
   const handleAction = (id: number, action: "approve" | "reject") => {
-    // Mock action: remove from pending list
-    setListings(listings.filter((l) => l.id !== id));
-    alert(`Listing ${id} has been ${action}d! (Mock)`);
+    const newStatus = action === "approve" ? "approved" : "rejected";
+    updateListingStatus(id, newStatus);
+    setListings(getPendingListings());
+    alert(`Listing has been ${action}d!`);
   };
 
   return (
@@ -41,13 +41,13 @@ export default function AdminListingsPage() {
               listings.map((listing) => (
                 <tr key={listing.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{listing.title}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${listing.category === "Pet" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-700"}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${listing.category === "pet" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-700"}`}>
                       {listing.category}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rs. {listing.price.toLocaleString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{listing.seller}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{listing.sellerName}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button 
                       onClick={() => handleAction(listing.id, "approve")}

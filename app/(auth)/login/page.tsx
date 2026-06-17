@@ -19,10 +19,23 @@ export default function LoginPage() {
     // MOCK BACKEND CALL (Replace with Supabase later)
     setTimeout(() => {
       if (email === "test@test.com" && password === "password") {
-        router.push("/"); // Redirect to home on success
+        // For demo, let's assume this is a seller
+        localStorage.setItem("userRole", "seller");
+        localStorage.setItem("userName", "Test Seller");
+        localStorage.setItem("userEmail", email); 
+        router.push("/seller/dashboard");
+      } else if (email === "admin@petly.com" && password === "admin123") {
+        // Admin credentials
+        localStorage.setItem("userRole", "admin");
+        localStorage.setItem("userName", "Admin User");
+        localStorage.setItem("userEmail", email);
+        router.push("/admin/dashboard");
       } else {
-        setError("Invalid email or password. (Try test@test.com / password)");
-        setIsLoading(false);
+        // Regular buyer
+        localStorage.setItem("userRole", "buyer");
+        localStorage.setItem("userName", email.split("@")[0]);
+        localStorage.setItem("userEmail", email);
+        router.push("/");
       }
     }, 1000);
   };
@@ -82,6 +95,12 @@ export default function LoginPage() {
         Don't have an account?{" "}
         <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500 transition">Sign up</Link>
       </p>
+      <div className="mt-6 p-3 bg-gray-50 rounded-md text-xs text-gray-600">
+        <p className="font-semibold mb-1">Demo Credentials:</p>
+        <p>Admin: admin@petly.com / admin123</p>
+        <p>Seller: test@test.com / password</p>
+        <p>Any other email = Buyer</p>
+      </div>
     </div>
   );
 }

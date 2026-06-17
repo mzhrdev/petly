@@ -1,28 +1,30 @@
 "use client";
 
-import { useState } from "react";
-
-const dummyListings = [
-  { id: 1, title: "Golden Retriever Puppy", category: "Pet", price: 45000, status: "Approved", date: "2024-01-10" },
-  { id: 2, title: "Premium Dog Food (20kg)", category: "Accessory", price: 8500, status: "Pending", date: "2024-01-15" },
-  { id: 3, title: "Persian Cat (Female)", category: "Pet", price: 30000, status: "Rejected", date: "2024-01-12" },
-];
+import { useState, useEffect } from "react";
+import { getSellerListings, deleteListing, Listing } from "@/lib/dataStore";
 
 export default function SellerListingsPage() {
-  const [listings, setListings] = useState(dummyListings);
+  const [listings, setListings] = useState<Listing[]>([]);
+
+  useEffect(() => {
+    const userEmail = localStorage.getItem("userEmail") || "seller@example.com";
+    setListings(getSellerListings(userEmail));
+  }, []);
 
   const handleDelete = (id: number) => {
     if (confirm("Are you sure you want to delete this listing?")) {
-      setListings(listings.filter((l) => l.id !== id));
+      deleteListing(id);
+      const userEmail = localStorage.getItem("userEmail") || "seller@example.com";
+      setListings(getSellerListings(userEmail));
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Approved": return "bg-green-100 text-green-800";
-      case "Pending": return "bg-yellow-100 text-yellow-800";
-      case "Rejected": return "bg-red-100 text-red-800";
-      case "Sold": return "bg-gray-100 text-gray-800";
+      case "approved": return "bg-green-100 text-green-800";
+      case "pending": return "bg-yellow-100 text-yellow-800";
+      case "rejected": return "bg-red-100 text-red-800";
+      case "sold": return "bg-gray-100 text-gray-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
@@ -51,7 +53,7 @@ export default function SellerListingsPage() {
               listings.map((listing) => (
                 <tr key={listing.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{listing.title}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{listing.category}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{listing.category}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rs. {listing.price.toLocaleString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(listing.status)}`}>

@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { addListing } from "@/lib/dataStore";
 
 export default function SellerListPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
-    category: "pet",
+    category: "pet" as "pet" | "accessory",
     price: "",
     description: "",
     imageUrl: "",
+    location: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -22,9 +24,23 @@ export default function SellerListPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // MOCK BACKEND CALL
+    // Get current user info
+    const userName = localStorage.getItem("userName") || "Unknown Seller";
+    const userEmail = localStorage.getItem("userEmail") || "seller@example.com";
+
+    // Add listing to localStorage
+    addListing({
+      title: formData.title,
+      category: formData.category,
+      price: parseInt(formData.price),
+      imageUrl: formData.imageUrl || "/images/placeholder.jpg",
+      sellerName: userName,
+      location: formData.location || "Not specified",
+      sellerId: userEmail,
+    });
+
+    // Simulate API delay
     setTimeout(() => {
-      console.log("Submitted Data:", formData);
       setIsLoading(false);
       alert("Listing submitted successfully! It is now pending admin approval.");
       router.push("/seller/listings");
@@ -75,6 +91,18 @@ export default function SellerListPage() {
               className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
+        </div>
+
+        {/* Location */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+          <input 
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            placeholder="e.g., Lahore, Karachi"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
         </div>
 
         {/* Image URL (Mock Upload) */}

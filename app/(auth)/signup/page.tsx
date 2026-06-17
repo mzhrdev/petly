@@ -9,6 +9,7 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("buyer"); // <-- NEW: Default to buyer
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,8 +20,19 @@ export default function SignupPage() {
 
     // MOCK BACKEND CALL (Replace with Supabase later)
     setTimeout(() => {
-      // Simulate success
-      router.push("/"); 
+      // Store role in localStorage for now (will be replaced with Supabase profile)
+localStorage.setItem("userRole", role);
+localStorage.setItem("userName", name);
+localStorage.setItem("userEmail", email);
+      
+      // Redirect based on role
+      if (role === "admin") {
+        router.push("/admin/dashboard");
+      } else if (role === "seller") {
+        router.push("/seller/dashboard");
+      } else {
+        router.push("/"); // Buyer goes to home
+      }
     }, 1000);
   };
 
@@ -70,6 +82,20 @@ export default function SignupPage() {
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition" 
               placeholder="••••••••"
             />
+          </div>
+          {/* NEW: Role Selection */}
+          <div>
+            <label htmlFor="role" className="block text-sm font-medium text-gray-700">I want to</label>
+            <select 
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition bg-white"
+            >
+              <option value="buyer">Browse and buy pets/accessories</option>
+              <option value="seller">Sell pets and accessories</option>
+              <option value="admin">Manage the platform (Admin)</option>
+            </select>
           </div>
         </div>
         <button 
