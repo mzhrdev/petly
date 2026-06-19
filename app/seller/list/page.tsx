@@ -24,27 +24,38 @@ export default function SellerListPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Get current user info
-    const userName = localStorage.getItem("userName") || "Unknown Seller";
-    const userEmail = localStorage.getItem("userEmail") || "seller@example.com";
+    try {
+      // Get current user info
+      const userId = localStorage.getItem("userId") || "";
+      const userName = localStorage.getItem("userName") || "Unknown Seller";
 
-    // Add listing to localStorage
-    addListing({
-      title: formData.title,
-      category: formData.category,
-      price: parseInt(formData.price),
-      imageUrl: formData.imageUrl || "/images/placeholder.jpg",
-      sellerName: userName,
-      location: formData.location || "Not specified",
-      sellerId: userEmail,
-    });
+      if (!userId) {
+        alert("You must be logged in to create a listing.");
+        router.push("/login");
+        return;
+      }
 
-    // Simulate API delay
-    setTimeout(() => {
-      setIsLoading(false);
+      // Add listing to Firestore
+      await addListing({
+        title: formData.title,
+        category: formData.category,
+        price: parseInt(formData.price),
+        imageUrl: formData.imageUrl || "/images/placeholder.jpg",
+        sellerName: userName,
+        location: formData.location || "Not specified",
+        sellerId: userId,
+        description: formData.description,
+      });
+
+      // Redirect to my listings
       alert("Listing submitted successfully! It is now pending admin approval.");
       router.push("/seller/listings");
-    }, 1000);
+    } catch (error) {
+      console.error("Error creating listing:", error);
+      alert("Failed to create listing. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -61,7 +72,7 @@ export default function SellerListPage() {
             value={formData.title}
             onChange={handleChange}
             placeholder="e.g., Golden Retriever Puppy (Male)"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900"
           />
         </div>
 
@@ -73,7 +84,7 @@ export default function SellerListPage() {
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-gray-900"
             >
               <option value="pet">Pet</option>
               <option value="accessory">Accessory</option>
@@ -88,7 +99,7 @@ export default function SellerListPage() {
               value={formData.price}
               onChange={handleChange}
               placeholder="e.g., 45000"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900"
             />
           </div>
         </div>
@@ -101,7 +112,7 @@ export default function SellerListPage() {
             value={formData.location}
             onChange={handleChange}
             placeholder="e.g., Lahore, Karachi"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900"
           />
         </div>
 
@@ -114,7 +125,7 @@ export default function SellerListPage() {
             value={formData.imageUrl}
             onChange={handleChange}
             placeholder="https://example.com/image.jpg (Paste a link for MVP)"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900"
           />
           <p className="mt-1 text-xs text-gray-500">For this MVP demo, paste any image URL. Real file upload will be added later.</p>
         </div>
@@ -129,7 +140,7 @@ export default function SellerListPage() {
             value={formData.description}
             onChange={handleChange}
             placeholder="Describe the pet's age, health, vaccination status, or accessory details..."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900"
           />
         </div>
 

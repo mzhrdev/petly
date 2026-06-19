@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -41,16 +43,17 @@ export default function Navbar() {
     };
   }, [isDropdownOpen]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userEmail");
-    setIsLoggedIn(false);
-    setUserRole(null);
-    setUserName(null);
-    setUserEmail(null);
-    setIsDropdownOpen(false);
-    window.location.href = "/";
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userId");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const getDashboardLink = () => {
@@ -76,9 +79,9 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-blue-600 font-medium transition">Home</Link>
-            <Link href="/?filter=pet" className="text-gray-700 hover:text-blue-600 font-medium transition">Pets</Link>
-            <Link href="/?filter=accessory" className="text-gray-700 hover:text-blue-600 font-medium transition">Accessories</Link>
+            <Link href="/" className="text-black hover:text-blue-600 font-medium transition">Home</Link>
+            <Link href="/?filter=pet" className="text-black hover:text-blue-600 font-medium transition">Pets</Link>
+            <Link href="/?filter=accessory" className="text-black hover:text-blue-600 font-medium transition">Accessories</Link>
           </div>
 
           {/* Auth Buttons OR User Menu */}
@@ -92,7 +95,7 @@ export default function Navbar() {
                 <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm border-2 border-blue-200">
                   {userName?.charAt(0).toUpperCase() || "U"}
                 </div>
-                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
               </button>
@@ -103,7 +106,7 @@ export default function Navbar() {
                   {/* User Info */}
                   <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-semibold text-gray-900">{userName || "User"}</p>
-                    <p className="text-xs text-gray-600 truncate">{userEmail || "user@example.com"}</p>
+                    <p className="text-xs text-gray-900 truncate">{userEmail || "user@example.com"}</p>
                     <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-blue-50 text-blue-700 rounded">
                       {getRoleLabel()}
                     </span>
@@ -114,7 +117,7 @@ export default function Navbar() {
                     <Link
                       href={getDashboardLink()}
                       onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-black hover:bg-gray-50 transition"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -142,7 +145,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               <Link 
                 href="/login" 
-                className="text-gray-700 hover:text-blue-600 font-medium px-3 py-2 transition"
+                className="text-black hover:text-blue-600 font-medium px-3 py-2 transition"
               >
                 Log in
               </Link>

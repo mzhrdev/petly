@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -35,11 +37,17 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
     };
   }, [isDropdownOpen]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userEmail");
-    window.location.href = "/";
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userId");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const navItems = [
@@ -65,7 +73,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                 className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                   isActive
                     ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    : "text-gray-900 hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
                 {item.name}
@@ -95,7 +103,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
               <div className="h-9 w-9 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm border-2 border-green-200">
                 {userName?.charAt(0).toUpperCase() || "S"}
               </div>
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
@@ -106,7 +114,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                 {/* User Info */}
                 <div className="px-4 py-3 border-b border-gray-100">
                   <p className="text-sm font-semibold text-gray-900">{userName || "Seller"}</p>
-                  <p className="text-xs text-gray-600 truncate">{userEmail || "seller@petly.com"}</p>
+                  <p className="text-xs text-gray-900 truncate">{userEmail || "seller@petly.com"}</p>
                   <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-green-50 text-green-700 rounded">
                     Seller
                   </span>
@@ -117,7 +125,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                   <Link
                     href="/"
                     onClick={() => setIsDropdownOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-black hover:bg-gray-50 transition"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>

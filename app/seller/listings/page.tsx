@@ -5,17 +5,39 @@ import { getSellerListings, deleteListing, Listing } from "@/lib/dataStore";
 
 export default function SellerListingsPage() {
   const [listings, setListings] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const userEmail = localStorage.getItem("userEmail") || "seller@example.com";
-    setListings(getSellerListings(userEmail));
+    const fetchListings = async () => {
+      try {
+        setIsLoading(true);
+        const userId = localStorage.getItem("userId") || "";
+        if (!userId) {
+          setListings([]);
+          return;
+        }
+        const data = await getSellerListings(userId);
+        setListings(data);
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchListings();
   }, []);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this listing?")) {
-      deleteListing(id);
-      const userEmail = localStorage.getItem("userEmail") || "seller@example.com";
-      setListings(getSellerListings(userEmail));
+      try {
+        await deleteListing(id);
+        const userId = localStorage.getItem("userId") || "";
+        const data = await getSellerListings(userId);
+        setListings(data);
+      } catch (error) {
+        console.error("Error deleting listing:", error);
+        alert("Failed to delete listing. Please try again.");
+      }
     }
   };
 
@@ -28,6 +50,17 @@ export default function SellerListingsPage() {
       default: return "bg-gray-100 text-gray-800";
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900">My Listings</h1>
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
+          <p className="text-gray-500">Loading your listings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

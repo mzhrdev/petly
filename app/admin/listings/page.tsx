@@ -5,17 +5,46 @@ import { getPendingListings, updateListingStatus, Listing } from "@/lib/dataStor
 
 export default function AdminListingsPage() {
   const [listings, setListings] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setListings(getPendingListings());
+    const fetchPendingListings = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getPendingListings();
+        setListings(data);
+      } catch (error) {
+        console.error("Error fetching pending listings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPendingListings();
   }, []);
 
-  const handleAction = (id: number, action: "approve" | "reject") => {
-    const newStatus = action === "approve" ? "approved" : "rejected";
-    updateListingStatus(id, newStatus);
-    setListings(getPendingListings());
-    alert(`Listing has been ${action}d!`);
+  const handleAction = async (id: string, action: "approve" | "reject") => {
+    try {
+      const newStatus = action === "approve" ? "approved" : "rejected";
+      await updateListingStatus(id, newStatus);
+      const data = await getPendingListings();
+      setListings(data);
+      alert(`Listing has been ${action}d!`);
+    } catch (error) {
+      console.error("Error updating listing status:", error);
+      alert("Failed to update listing. Please try again.");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900">Pending Listings</h1>
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
+          <p className="text-gray-500">Loading pending listings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

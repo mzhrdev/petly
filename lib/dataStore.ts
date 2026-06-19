@@ -1,7 +1,19 @@
-import { dummyListings } from "./dummyData";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  doc,
+  DocumentData,
+  QueryDocumentSnapshot,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export interface Listing {
-  id: number;
+  id: string;
   title: string;
   category: "pet" | "accessory";
   price: number;
@@ -9,72 +21,112 @@ export interface Listing {
   sellerName: string;
   location: string;
   status: "pending" | "approved" | "rejected" | "sold";
-  sellerId?: string;
+  sellerId: string;
   createdAt: string;
+  description?: string;
 }
 
-// Initialize localStorage with dummy data if not already set
-export function initializeData() {
-  if (!localStorage.getItem("listings")) {
-    const listingsWithStatus: Listing[] = dummyListings.map((item, index) => ({
-        ...item,
-        category: item.category as "pet" | "accessory", // <-- Add this type assertion
-        status: index < 4 ? "approved" : "pending",
-        sellerId: "seller-1",
-        createdAt: new Date().toISOString(),
-      }));
-    localStorage.setItem("listings", JSON.stringify(listingsWithStatus));
-  }
-}
+const LISTINGS_COLLECTION = "listings";
 
-// Get all listings
-export function getListings(): Listing[] {
-  initializeData();
-  const data = localStorage.getItem("listings");
-  return data ? JSON.parse(data) : [];
-}
-
-// Get approved listings (for home page)
-export function getApprovedListings(): Listing[] {
-  return getListings().filter((listing) => listing.status === "approved");
-}
-
-// Get pending listings (for admin)
-export function getPendingListings(): Listing[] {
-  return getListings().filter((listing) => listing.status === "pending");
-}
-
-// Get seller's listings
-export function getSellerListings(sellerId: string): Listing[] {
-  return getListings().filter((listing) => listing.sellerId === sellerId);
-}
-
-// Add new listing
-export function addListing(listing: Omit<Listing, "id" | "createdAt" | "status">): Listing {
-  const listings = getListings();
-  const newListing: Listing = {
-    ...listing,
-    id: Date.now(), // Simple unique ID
-    status: "pending",
-    createdAt: new Date().toISOString(),
+function docToListing(docSnapshot: QueryDocumentSnapshot<DocumentData>): Listing {
+  const data = docSnapshot.data();
+  return {
+    id: docSnapshot.id,
+    title: data.title,
+    category: data.category,
+    price: data.price,
+    imageUrl: data.imageUrl,
+    sellerName: data.sellerName,
+    location: data.location,
+    status: data.status,
+    sellerId: data.sellerId,
+    createdAt: data.createdAt,
+    description: data.description,
   };
-  listings.push(newListing);
-  localStorage.setItem("listings", JSON.stringify(listings));
-  return newListing;
 }
 
-// Update listing status
-export function updateListingStatus(listingId: number, status: Listing["status"]) {
-  const listings = getListings();
-  const index = listings.findIndex((l) => l.id === listingId);
-  if (index !== -1) {
-    listings[index].status = status;
-    localStorage.setItem("listings", JSON.stringify(listings));
+export async function getListings(): Promise<Listing[]> {
+  try {
+    const snapshot = await getDocs(collection(db, LISTINGS_COLLECTION));
+    return snapshot.docs.map(docToListing);
+  } catch (error) {
+    console.error("Error fetching listings:", error);
+    throw error;
   }
 }
 
-// Delete listing
-export function deleteListing(listingId: number) {
-  const listings = getListings().filter((l) => l.id !== listingId);
-  localStorage.setItem("listings", JSON.stringify(listings));
+export async function getApprovedListings(): Promise<Listing[]> {
+  try {
+    const q = query(collection(db, LISTINGS_COLLECTION), where("status", "==", "approved"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(docToListing);
+  } catch (error) {
+    console.error("Error fetching approved listings:", error);
+    throw error;
+  }
+}
+
+export async function getPendingListings(): Promise<Listing[]> {
+  try {
+    const q = query(collection(db, LISTINGS_COLLECTION), where("status", "==", "pending"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(docToListing);
+  } catch (error) {
+    console.error("Error fetching pending listings:", error);
+    throw error;
+  }
+}
+
+export async function getSellerListings(sellerId: string): Promise<Listing[]> {
+  try {
+    const q = query(collection(db, LISTINGS_COLLECTION), where("sellerId", "==", sellerId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(docToListing);
+  } catch (error) {
+    console.error("Error fetching seller listings:", error);
+    throw error;
+  }
+}
+
+export async function addListing(
+  listing: Omit<Listing, "id" | "createdAt" | "status">
+): Promise<Listing> {
+  try {
+    const createdAt = new Date().toISOString();
+    const docRef = await addDoc(collection(db, LISTINGS_COLLECTION), {
+      ...listing,
+      status: "pending",
+      createdAt,
+    });
+    return {
+      id: docRef.id,
+      ...listing,
+      status: "pending",
+      createdAt,
+    };
+  } catch (error) {
+    console.error("Error adding listing:", error);
+    throw error;
+  }
+}
+
+export async function updateListingStatus(
+  listingId: string,
+  status: Listing["status"]
+): Promise<void> {
+  try {
+    await updateDoc(doc(db, LISTINGS_COLLECTION, listingId), { status });
+  } catch (error) {
+    console.error("Error updating listing status:", error);
+    throw error;
+  }
+}
+
+export async function deleteListing(listingId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, LISTINGS_COLLECTION, listingId));
+  } catch (error) {
+    console.error("Error deleting listing:", error);
+    throw error;
+  }
 }

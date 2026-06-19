@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,28 +19,38 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
 
-    // MOCK BACKEND CALL (Replace with Supabase later)
-    setTimeout(() => {
-      if (email === "test@test.com" && password === "password") {
-        // For demo, let's assume this is a seller
-        localStorage.setItem("userRole", "seller");
-        localStorage.setItem("userName", "Test Seller");
-        localStorage.setItem("userEmail", email); 
-        router.push("/seller/dashboard");
-      } else if (email === "admin@petly.com" && password === "admin123") {
-        // Admin credentials
-        localStorage.setItem("userRole", "admin");
-        localStorage.setItem("userName", "Admin User");
-        localStorage.setItem("userEmail", email);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
+      if (!userDoc.exists()) {
+        setError("Failed to fetch user profile. Please try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      const profileData = userDoc.data();
+      const role = profileData?.role;
+
+      localStorage.setItem("userName", profileData?.name || email.split("@")[0]);
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userRole", role);
+      localStorage.setItem("userId", user.uid);
+
+      if (role === "admin") {
         router.push("/admin/dashboard");
+      } else if (role === "seller") {
+        router.push("/seller/dashboard");
       } else {
-        // Regular buyer
-        localStorage.setItem("userRole", "buyer");
-        localStorage.setItem("userName", email.split("@")[0]);
-        localStorage.setItem("userEmail", email);
         router.push("/");
       }
-    }, 1000);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -58,7 +71,7 @@ export default function LoginPage() {
               required 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition" 
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition text-gray-900" 
               placeholder="you@example.com"
             />
           </div>
@@ -70,7 +83,7 @@ export default function LoginPage() {
               required 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition" 
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition text-gray-900" 
               placeholder="••••••••"
             />
           </div>
@@ -95,12 +108,6 @@ export default function LoginPage() {
         Don't have an account?{" "}
         <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500 transition">Sign up</Link>
       </p>
-      <div className="mt-6 p-3 bg-gray-50 rounded-md text-xs text-gray-600">
-        <p className="font-semibold mb-1">Demo Credentials:</p>
-        <p>Admin: admin@petly.com / admin123</p>
-        <p>Seller: test@test.com / password</p>
-        <p>Any other email = Buyer</p>
-      </div>
     </div>
   );
 }

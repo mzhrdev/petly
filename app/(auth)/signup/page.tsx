@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 export default function SignupPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("buyer"); // <-- NEW: Default to buyer
+  const [role, setRole] = useState("buyer");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,27 +21,40 @@ export default function SignupPage() {
     setIsLoading(true);
     setError(null);
 
-    // MOCK BACKEND CALL (Replace with Supabase later)
-    setTimeout(() => {
-      // Store role in localStorage for now (will be replaced with Supabase profile)
-localStorage.setItem("userRole", role);
-localStorage.setItem("userName", name);
-localStorage.setItem("userEmail", email);
-      
-      // Redirect based on role
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        email,
+        role,
+        createdAt: new Date().toISOString(),
+      });
+
+      localStorage.setItem("userName", name);
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userRole", role);
+      localStorage.setItem("userId", user.uid);
+
       if (role === "admin") {
         router.push("/admin/dashboard");
       } else if (role === "seller") {
         router.push("/seller/dashboard");
       } else {
-        router.push("/"); // Buyer goes to home
+        router.push("/");
       }
-    }, 1000);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="rounded-lg bg-white p-8 shadow-md">
       <h2 className="text-center text-2xl font-bold text-gray-900">Create your PETLY account</h2>
+
       <form onSubmit={handleSignup} className="mt-8 space-y-6">
         {error && (
           <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
@@ -54,7 +70,7 @@ localStorage.setItem("userEmail", email);
               required 
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition" 
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition text-gray-900" 
               placeholder="John Doe"
             />
           </div>
@@ -66,7 +82,7 @@ localStorage.setItem("userEmail", email);
               required 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition" 
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition text-gray-900" 
               placeholder="you@example.com"
             />
           </div>
@@ -79,18 +95,17 @@ localStorage.setItem("userEmail", email);
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition" 
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition text-gray-900" 
               placeholder="••••••••"
             />
           </div>
-          {/* NEW: Role Selection */}
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700">I want to</label>
             <select 
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition bg-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition bg-white text-gray-900"
             >
               <option value="buyer">Browse and buy pets/accessories</option>
               <option value="seller">Sell pets and accessories</option>

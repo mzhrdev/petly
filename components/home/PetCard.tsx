@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 interface ListingCardProps {
-  id: number;
+  id: string;  // Changed from number to string
   title: string;
   category: string;
   price: number;
@@ -32,7 +32,7 @@ export default function ListingCard({ title, category, price, imageUrl, sellerNa
         <h3 className="text-lg font-semibold text-gray-900 line-clamp-1 mb-1">{title}</h3>
         <p className="text-xl font-bold text-blue-600 mb-3">Rs. {price.toLocaleString()}</p>
         
-        <div className="flex items-center justify-between text-sm text-gray-500 border-t border-gray-100 pt-3">
+        <div className="flex items-center justify-between text-sm text-gray-700 border-t border-gray-100 pt-3">
           <div className="flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
             <span className="truncate max-w-[100px]">{sellerName}</span>

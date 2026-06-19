@@ -8,9 +8,21 @@ import { getApprovedListings, Listing } from "@/lib/dataStore";
 export default function HomePage() {
   const [filter, setFilter] = useState<"all" | "pet" | "accessory">("all");
   const [listings, setListings] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setListings(getApprovedListings());
+    const fetchListings = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getApprovedListings();
+        setListings(data);
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchListings();
   }, []);
 
   const filteredListings = listings.filter((item) => 
@@ -27,7 +39,7 @@ export default function HomePage() {
           <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
             Find Your Perfect Companion
           </h1>
-          <p className="text-lg text-gray-800 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-900 max-w-2xl mx-auto">
             Browse verified, authentic pets and high-quality accessories from trusted sellers across Pakistan.
           </p>
         </div>
@@ -63,7 +75,11 @@ export default function HomePage() {
         </div>
 
         {/* Listings Grid */}
-        {filteredListings.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-20">
+            <p className="text-gray-500 text-lg">Loading listings...</p>
+          </div>
+        ) : filteredListings.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredListings.map((listing) => (
               <ListingCard key={listing.id} {...listing} />

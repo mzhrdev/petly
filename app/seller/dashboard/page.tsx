@@ -25,7 +25,7 @@ export default function SellerDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {stats.map((stat, index) => (
           <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-            <p className="text-sm font-medium text-gray-500">{stat.label}</p>
+            <p className="text-sm font-medium text-gray-800">{stat.label}</p>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-3xl font-bold text-gray-900">{stat.value}</span>
               <span className={`text-xs font-medium px-2 py-1 rounded-full ${stat.color}`}>

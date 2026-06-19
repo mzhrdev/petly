@@ -16,7 +16,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-            <p className="text-sm font-medium text-gray-500">{stat.label}</p>
+            <p className="text-sm font-medium text-gray-800">{stat.label}</p>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-3xl font-bold text-gray-900">{stat.value}</span>
               <span className={`text-xs font-medium px-2 py-1 rounded-full ${stat.color}`}>
@@ -37,7 +37,7 @@ export default function AdminDashboardPage() {
                 <div className="h-2 w-2 rounded-full bg-blue-500"></div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">New listing submitted</p>
-                  <p className="text-xs text-gray-500">Seller: John Doe • Golden Retriever Puppy</p>
+                  <p className="text-xs text-gray-800">Seller: John Doe • Golden Retriever Puppy</p>
                 </div>
               </div>
               <span className="text-xs text-gray-400">2 mins ago</span>

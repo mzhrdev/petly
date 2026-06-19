@@ -23,22 +23,22 @@ export default function AdminVerificationsPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seller Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CNIC</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Seller Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">CNIC</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {sellers.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-gray-500">No pending verifications.</td>
+                <td colSpan={4} className="px-6 py-8 text-center text-gray-800">No pending verifications.</td>
               </tr>
             ) : (
               sellers.map((seller) => (
                 <tr key={seller.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{seller.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{seller.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{seller.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">{seller.cnic}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button 

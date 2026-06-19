@@ -32,21 +32,21 @@ export default function ForgotPasswordPage() {
         {message && <div className="rounded-md bg-green-50 p-3 text-sm text-green-600 border border-green-200">{message}</div>}
         
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+          <label htmlFor="email" className="block text-sm font-medium text-black">Email address</label>
           <input 
             id="email" 
             type="email" 
             required 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition" 
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition text-gray-900" 
             placeholder="you@example.com"
           />
         </div>
         <button 
           type="submit" 
           disabled={isLoading}
-          className="flex w-full justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="flex w-full justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-900"
         >
           {isLoading ? (
             <span className="flex items-center gap-2">
@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
           ) : "Send reset link"}
         </button>
       </form>
-      <p className="mt-4 text-center text-sm text-gray-600">
+      <p className="mt-4 text-center text-sm text-gray-900">
         <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500 transition">Back to login</Link>
       </p>
     </div>
