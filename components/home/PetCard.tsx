@@ -9,23 +9,44 @@ interface ListingCardProps {
 }
 
 export default function ListingCard({ title, category, price, imageUrl, sellerName, location }: ListingCardProps) {
-  // Fallback to placeholder if no image URL
-  const displayImage = imageUrl || "https://placehold.co/500x500/4F46E5/FFFFFF?text=No+Image";
-  
+  // Multiple fallback URLs in order
+  const fallbackUrls = [
+    imageUrl,
+    `https://placehold.co/600x400/4F46E5/FFFFFF?text=${encodeURIComponent(title || 'Pet')}`,
+    `https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=${encodeURIComponent(title || 'Pet')}`,
+    `https://dummyimage.com/600x400/4F46E5/fff&text=${encodeURIComponent(title || 'Pet')}`,
+  ];
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, index: number) => {
+    if (index < fallbackUrls.length - 1) {
+      e.currentTarget.src = fallbackUrls[index + 1];
+    } else {
+      // Final fallback: hide image, show colored box
+      e.currentTarget.style.display = 'none';
+      const parent = e.currentTarget.parentElement;
+      if (parent) {
+        parent.innerHTML = `
+          <div class="h-full w-full flex items-center justify-center ${
+            category === 'pet' ? 'bg-purple-100' : 'bg-blue-100'
+          }">
+            <span class="text-6xl">${category === 'pet' ? '🐕' : '🎾'}</span>
+          </div>
+        `;
+      }
+    }
+  };
+
   return (
     <div className="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
       {/* Image Container */}
       <div className="relative h-48 w-full overflow-hidden bg-gray-100">
         <img 
-          src={displayImage} 
+          src={fallbackUrls[0]} 
           alt={title} 
           className="w-full h-full object-cover"
           style={{ display: 'block' }}
           loading="lazy"
-          onError={(e) => {
-            console.error("Failed to load image:", displayImage);
-            e.currentTarget.src = "https://placehold.co/500x500/E5E7EB/6B7280?text=Image+Not+Available";
-          }}
+          onError={(e) => handleImageError(e, 0)}
         />
         <span className={`absolute top-3 left-3 px-2 py-1 text-xs font-bold uppercase tracking-wide rounded-md shadow-sm ${
           category === "pet" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-700"
