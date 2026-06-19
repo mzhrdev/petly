@@ -9,27 +9,29 @@ interface ListingCardProps {
 }
 
 export default function ListingCard({ title, category, price, imageUrl, sellerName, location }: ListingCardProps) {
-  // Multiple fallback URLs in order
-  const fallbackUrls = [
+  // Local asset fallback paths (add these images to public/images/)
+  const fallbackPaths = [
     imageUrl,
-    `https://placehold.co/600x400/4F46E5/FFFFFF?text=${encodeURIComponent(title || 'Pet')}`,
-    `https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=${encodeURIComponent(title || 'Pet')}`,
-    `https://dummyimage.com/600x400/4F46E5/fff&text=${encodeURIComponent(title || 'Pet')}`,
+    "/images/fallback1.jpg",
+    "/images/fallback2.jpg",    
   ];
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, index: number) => {
-    if (index < fallbackUrls.length - 1) {
-      e.currentTarget.src = fallbackUrls[index + 1];
+    if (index < fallbackPaths.length - 1) {
+      e.currentTarget.src = fallbackPaths[index + 1];
     } else {
-      // Final fallback: hide image, show colored box
+      // Final fallback: show "Image uploading soon" placeholder
       e.currentTarget.style.display = 'none';
       const parent = e.currentTarget.parentElement;
       if (parent) {
         parent.innerHTML = `
-          <div class="h-full w-full flex items-center justify-center ${
-            category === 'pet' ? 'bg-purple-100' : 'bg-blue-100'
+          <div class="h-full w-full flex flex-col items-center justify-center ${
+            category === 'pet' ? 'bg-purple-50' : 'bg-blue-50'
           }">
-            <span class="text-6xl">${category === 'pet' ? '🐕' : '🎾'}</span>
+            <div class="text-5xl mb-2">${category === 'pet' ? '🐾' : '📦'}</div>
+            <p class="text-sm font-medium ${
+              category === 'pet' ? 'text-purple-700' : 'text-blue-700'
+            }">Image uploading soon</p>
           </div>
         `;
       }
@@ -41,7 +43,7 @@ export default function ListingCard({ title, category, price, imageUrl, sellerNa
       {/* Image Container */}
       <div className="relative h-48 w-full overflow-hidden bg-gray-100">
         <img 
-          src={fallbackUrls[0]} 
+          src={fallbackPaths[0]} 
           alt={title} 
           className="w-full h-full object-cover"
           style={{ display: 'block' }}
