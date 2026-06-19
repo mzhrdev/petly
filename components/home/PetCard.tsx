@@ -13,19 +13,23 @@ interface ListingCardProps {
 export default function ListingCard({ title, category, price, imageUrl, sellerName, location }: ListingCardProps) {
   return (
     <div className="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-      {/* Image Container */}
-      <div className="relative h-48 w-full overflow-hidden bg-gray-100">
-        <img 
-          src={imageUrl} 
-          alt={title} 
-          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        <span className={`absolute top-3 left-3 px-2 py-1 text-xs font-bold uppercase tracking-wide rounded-md ${
-          category === "pet" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-700"
-        }`}>
-          {category}
-        </span>
-      </div>
+     {/* Image Container */}
+<div className="relative h-48 w-full overflow-hidden bg-gray-100">
+  <img 
+    src={imageUrl} 
+    alt={title} 
+    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+    onError={(e) => {
+      console.error("Image failed to load:", imageUrl);
+      e.currentTarget.src = "/images/placeholder.jpg"; // Fallback image
+    }}
+  />
+  <span className={`absolute top-3 left-3 px-2 py-1 text-xs font-bold uppercase tracking-wide rounded-md ${
+    category === "pet" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-700"
+  }`}>
+    {category}
+  </span>
+</div>
 
       {/* Content */}
       <div className="p-4">
